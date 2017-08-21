@@ -1,35 +1,32 @@
 <template>
-  <div class="col-sm-3 ">
+  <div class="card">
+    <div class="card-body align-items-center justify-content-center" v-bind:class="{ 'd-flex': !isCreating}"
+         style="min-height: 150px;" v-show="!isCreating">
+      <button class='btn btn-primary' v-on:click="openForm">
+        Add New Todo List
+      </button>
+    </div>
 
-    <div class="card">
-      <div class="card-body align-items-center justify-content-center" v-bind:class="{ 'd-flex': !isCreating}"
-           style="min-height: 150px;" v-show="!isCreating">
-        <button class='btn btn-primary' v-on:click="openForm">
-          Add New Todo List
-        </button>
+    <div class="card-body" v-show="isCreating">
+      <div class="form-group">
+        <label>Title</label>
+        <input type='text' v-model="titleText" ref='title' class="form-control" placeholder="Title"
+               v-on:mouseover="$event.target.focus()">
       </div>
 
-      <div class="card-body" v-show="isCreating">
-        <div class="form-group">
-          <label>Title</label>
-          <input type='text' v-model="titleText" ref='title' class="form-control" placeholder="Title"
-                 v-on:mouseover="$event.target.focus()">
-        </div>
+      <div class="form-group">
+        <label>Color</label>
+        <slider-picker v-model="colors"/>
+      </div>
 
-        <div class="form-group">
-          <label>Color</label>
-          <slider-picker v-model="colors"/>
-        </div>
+      <div class="btn-group col align-self-center" role="group" style="margin-top: 5px;">
+        <button class='btn btn-primary' v-on:click="sendForm()">
+          Create
+        </button>
+        <button class='btn btn-secondary' v-on:click="closeForm">
+          Cancel
+        </button>
 
-        <div class="btn-group col align-self-center" role="group" style="margin-top: 5px;">
-          <button class='btn btn-primary' v-on:click="sendForm()">
-            Create
-          </button>
-          <button class='btn btn-secondary' v-on:click="closeForm">
-            Cancel
-          </button>
-
-        </div>
       </div>
     </div>
   </div>
@@ -100,5 +97,9 @@
   .vc-slider {
     width: auto !important;
     margin: 10px 0;
+  }
+
+  .card {
+    margin-top: 10px;
   }
 </style>

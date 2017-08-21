@@ -1,40 +1,25 @@
 <template>
-  <div class="col-sm-3">
+  <div class="card" v-bind:style="{ background: todo.background }">
 
-    <div class="card" v-bind:style="{ background: todo.background }">
+    <div class="card-body">
+      <div class='card-title'>
+        <label v-on:click="showList(todo)">
+          <h3 style="display: inline-block;">{{ todo.title }}</h3>
+          <span class="badge badge-warning" v-show="todo.shareWith">Shared</span>
+        </label>
 
-      <div class="card-body" v-show="!isEditing">
-        <div class='card-title'>
-          <label v-on:click="showForm">
-            {{ todo.title }}
-
-          </label>
-
-          <span class='pull-right' v-on:click="deleteTodo(todo)">
+        <span class='pull-right' v-on:click="deleteTodo(todo)" v-show="!isShareView">
           <i class='fa fa-trash-o'></i>
         </span>
-        </div>
-
       </div>
 
-
-      <task v-on:delete-task="deleteTask" v-for="task in todo.tasks" v-bind:task="task" v-show="!isEditing" ></task>
-
-      <create-task v-on:add-task="addTask" v-show="!isEditing"></create-task>
-
-
-      <div class="card-body" v-show="isEditing">
-        <div class='form-group'>
-          <label>Title</label>
-          <input class="form-control" type='text' v-model="todo.title" v-on:mouseover="$event.target.focus()">
-        </div>
-      </div>
-
-      <div class="card-footer text-center" v-on:click="hideForm" v-show="isEditing">
-        <i class="fa fa-close"></i>
-        Close
-      </div>
     </div>
+
+
+    <task v-on:delete-task="deleteTask" v-for="task in todo.tasks" v-bind:task="task" isShareView="isShareView"></task>
+
+    <create-task v-on:add-task="addTask" v-show="!isShareView"></create-task>
+
   </div>
 </template>
 
@@ -43,36 +28,23 @@
   import CreateTask from './CreateTask';
 
   export default {
-    props: ['todo'],
+    props: ['todo', 'isShareView'],
     components: {
       Task,
       CreateTask,
     },
-    data() {
-      return {
-        isEditing: false,
-      };
-    },
     methods: {
-      showForm() {
-        this.isEditing = true;
-      },
-      hideForm() {
-        this.isEditing = false;
-      },
       deleteTodo(todo) {
-        this.$emit('delete-todo', todo);
+        this.$store.state.getters.deleteTodo(todo);
       },
       deleteTask(task) {
-        const index = this.todo.tasks.indexOf(task);
-        this.todo.tasks.splice(index, 1);
+        this.$store.state.getters.deleteTask(this.todo, task);
       },
       addTask(data) {
-        this.todo.tasks.push({
-          title: data.title,
-          done: false,
-          tasks: [],
-        });
+        this.$store.state.getters.addTask(this.todo, data);
+      },
+      showList(data) {
+        this.$router.push({ name: 'todo', params: { id: data.id } });
       },
     },
   };
@@ -84,7 +56,4 @@
     margin-bottom: 0;
   }
 
-  .card {
-    margin-top: 10px;
-  }
 </style>
