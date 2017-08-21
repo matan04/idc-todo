@@ -15,6 +15,9 @@
       <div class="login-form" v-show="!isRegister">
         <input v-model="userName" type="text" data-role="username" placeholder="username"/>
         <input v-model="password" type="password" data-role="password" placeholder="password"/>
+        <div class="alert alert-danger" role="alert" v-show="error">
+          Couldn't find user!
+        </div>
         <button id="login" v-on:click="login">Login</button>
         <p class="message">Not registered?
           <small v-on:click="toggleRegister">Create an account</small>
@@ -34,6 +37,7 @@
         isRegister: false,
         userName: '',
         password: '',
+        error: false,
       };
     },
     created() {
@@ -41,11 +45,13 @@
     },
     methods: {
       toggleRegister() {
+        this.error = false;
         this.isRegister = !this.isRegister;
       },
       register() {
         this.$store.state.getters.register(this.userName, this.password)
         .then(() => {
+          this.error = false;
           this.toggleRegister();
         });
       },
@@ -55,7 +61,7 @@
           if (res.status === 200) {
             this.$router.push({ name: 'lists' });
           } else {
-            this.toggleRegister();
+            this.error = true;
           }
         });
       },

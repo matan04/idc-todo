@@ -13,10 +13,10 @@
       </div>
 
       <div class="btn-group col align-self-center" role="group" style="margin-top: 5px;">
-        <button class='btn btn-primary' v-on:click="sendForm()">
+        <button class='btn btn-primary col' v-on:click="sendForm()">
           Create
         </button>
-        <button class='btn btn-secondary' v-on:click="closeForm">
+        <button class='btn btn-secondary col' v-on:click="closeForm">
           Cancel
         </button>
 

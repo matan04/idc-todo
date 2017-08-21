@@ -1,18 +1,16 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue';
 import store from './store';
-import { sync } from 'vuex-router-sync';
+import {sync} from 'vuex-router-sync';
 import VueRouter from 'vue-router';
-import App from './components/App';
+import App from './App';
 import TodoLists from './components/TodoLists';
 import TodoPage from './components/TodoPage';
 import Login from './components/Login';
 
-Vue.config.productionTip = false;
-
+//user router
 Vue.use(VueRouter);
 
+//define new router
 const router = new VueRouter({
   mode: 'history',
   base: __dirname,
@@ -23,17 +21,14 @@ const router = new VueRouter({
   ],
 });
 
+//sync routed and store together
 sync(store, router);
 
-/* eslint-disable no-new */
-// new Vue({ router }).$mount('#app');
-
+//init new Vue instance
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   store,
   router,
-  render: h => h(App), //
-  // template: '<App/>',
-  // components: { App },
+  render: h => h(App),
 });

@@ -2,12 +2,12 @@
   <div>
     <h1 class="display-4">My todo's</h1>
     <div class="card-columns">
-      <todo v-for="todo in todos" v-bind:todo="todo"></todo>
+      <todo v-for="todo in todos" :key="todo.id" v-bind:todo="todo" v-bind:isShareView="false"></todo>
       <create-todo v-on:add-todo="addTodo"></create-todo>
     </div>
     <h1 class="display-4">Shared with me</h1>
     <div class="card-columns">
-      <todo v-for="todo in shared" v-bind:todo="todo" isShareView="true"></todo>
+      <todo v-for="todo in shared" :key="todo.id" v-bind:todo="todo" v-bind:isShareView="true"></todo>
     </div>
   </div>
 </template>

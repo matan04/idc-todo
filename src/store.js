@@ -1,24 +1,32 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+//use Vuex for state manager
 Vue.use(Vuex);
 
 const baseURL = 'http://localhost:3000';
 const listsURL = `${baseURL}/lists`;
 const listURL = `${baseURL}/list`;
 
+//check that the response from the server is not 401 (unauthorized), if does, redirect to login.
 const checkForAuth = (response) => {
   if (response.status === 401) {
     store.state.isLoggedIn = false;
-    location.href = '/';
   }
   return response;
 };
 
+//define our state
 const store = new Vuex.Store({
   state: {
+
+    //my todo lists
     todos: [],
+
+    //todos shared with me
     shared: [],
+
+    //true is user logged in.
     isLoggedIn: true,
     getters: {
       register: (userName, password) => {
@@ -36,17 +44,25 @@ const store = new Vuex.Store({
         });
       },
       logout: () => {
-        return fetch(`${baseURL}/logout`, { method: 'GET' })
+        fetch(`${baseURL}/logout`, {
+          method: 'GET',
+          credentials: 'include',
+        })
         .then(() => {
-          location.href = '/';
+          store.state.isLoggedIn = false;
         });
       },
       deleteAll: () => {
-        return fetch(`${baseURL}/user`, { method: 'DELETE' })
+        fetch(`${baseURL}/user`, {
+          method: 'DELETE',
+          credentials: 'include',
+        })
         .then(() => {
-          location.href = '/';
+          store.state.isLoggedIn = false;
         });
       },
+
+      //get all user todo lists (user lists + shared lists), return promise.
       getLists: () =>
         fetch(listsURL, { credentials: 'include' })
         .then(checkForAuth)
@@ -61,14 +77,22 @@ const store = new Vuex.Store({
           store.state.shared = data.sharedItems;
           return new Promise((resolve) => resolve(data));
         }),
+
+      //get specific todo list, return promise.
       getTodo: id =>
         fetch(`${listURL}/${id}`, {
           method: 'GET',
           credentials: 'include',
         })
         .then(checkForAuth)
-        .then(response => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          }
+          return {};
+        })
       ,
+      //create new todo list, return promise.
       addTodo: (data) => {
         return fetch(listURL, {
           method: 'POST',
@@ -89,6 +113,8 @@ const store = new Vuex.Store({
           return new Promise((resolve) => resolve(res));
         });
       },
+
+      //delete specific todo, return promise.
       deleteTodo: todo =>
         fetch(`${listURL}/${todo.id}`, {
           method: 'DELETE',
@@ -101,6 +127,7 @@ const store = new Vuex.Store({
           return;
         })
       ,
+      //add task to specific todo.
       addTask: (todo, data) => {
         fetch(`${listURL}/${todo.id}/item/${data.title}`, {
           method: 'POST',
@@ -119,6 +146,8 @@ const store = new Vuex.Store({
           }
         });
       },
+
+      //delete task from specific todo list.
       deleteTask: (todo, task) => {
         fetch(`${listURL}/${todo.id}/${task.taskId}`, {
           method: 'DELETE',
@@ -132,6 +161,8 @@ const store = new Vuex.Store({
           }
         });
       },
+
+      //share list with user, return promise.
       shareTodo: (todo, shareWith) => {
         return fetch(`${listURL}/${todo.id}/share/${shareWith}`, {
           method: 'PUT',
@@ -143,8 +174,11 @@ const store = new Vuex.Store({
             todo = response.json();
             return todo;
           }
+          return false;
         });
       },
+
+      //search for task
       searchTasks: (listId, val) => {
         return fetch(`${listURL}/${listId}/item/${val}`, {
           method: 'GET',

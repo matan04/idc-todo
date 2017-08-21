@@ -5,7 +5,7 @@
       <div class="form-group">
         <div class="form-check">
           <label>{{ task.title }}</label>
-          <span class='pull-right' v-on:click="deleteTask(task)">
+          <span class='pull-right' v-on:click="deleteTask(task)" v-show="!isShareView">
           <i class='fa fa-close'></i>
         </span>
         </div>

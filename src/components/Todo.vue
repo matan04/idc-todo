@@ -16,7 +16,7 @@
     </div>
 
 
-    <task v-on:delete-task="deleteTask" v-for="task in todo.tasks" v-bind:task="task" isShareView="isShareView"></task>
+    <task v-on:delete-task="deleteTask" v-for="task in todo.tasks" :key="task.taskId" v-bind:task="task" v-bind:isShareView="isShareView"></task>
 
     <create-task v-on:add-task="addTask" v-show="!isShareView"></create-task>
 

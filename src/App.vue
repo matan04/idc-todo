@@ -1,7 +1,7 @@
 <template>
 
   <div id="app" class="container">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" v-show="this.$store.state.isLoggedIn">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" v-show="isLoggedIn">
       <label class="navbar-brand">Todo's</label>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
               aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,12 +11,12 @@
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <router-link to="/lists" class="nav-item nav-link">My Todo's</router-link>
-          <a class="nav-item nav-link" href="#">
+          <div class="nav-item nav-link" v-on:click="deleteUser()">
             <small>Delete Account</small>
-          </a>
-          <a class="nav-item nav-link" href="#">
+          </div>
+          <div class="nav-item nav-link" v-on:click="logout()">
             <small>Logout</small>
-          </a>
+          </div>
         </div>
       </div>
     </nav>
@@ -30,6 +30,26 @@
 
   export default {
     name: 'app',
+    computed: {
+      isLoggedIn () {
+        return this.$store.state.isLoggedIn;
+      }
+    },
+    methods: {
+      deleteUser() {
+        this.$store.state.getters.deleteAll();
+      },
+      logout() {
+        this.$store.state.getters.logout();
+      },
+    },
+    watch: {
+      isLoggedIn (isLoggedIn) {
+        if (!isLoggedIn) {
+          this.$router.push({ path: '/' });
+        }
+      }
+    },
   };
 </script>
 
@@ -41,5 +61,8 @@
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
     margin-top: 20px;
+  }
+  .nav-link {
+    cursor: pointer;
   }
 </style>

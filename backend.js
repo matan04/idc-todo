@@ -17,9 +17,12 @@ const app = express();
 let usersList = [];
 let todoLists = [];
 
+
+console.log('backend start');
 app.use(cookieParser(MY_COOKIE));
 app.use(bodyParser.text());
 
+//use to allow cross domain requests
 const allowCrossDomain = function (req, res, next) {
   res.header('Access-Control-Allow-Origin', req.headers.origin);
   res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, HEAD, OPTIONS');
@@ -27,7 +30,7 @@ const allowCrossDomain = function (req, res, next) {
   //intercepts OPTIONS method
   if ('OPTIONS' === req.method) {
     //respond with 200
-    res.send(200);
+    res.sendStatus(200);
   }
   else {
     //move on
@@ -80,7 +83,6 @@ app.post('/login/:username/:password', (req, res) => {
 
   if (checkExists.length > 0) {
     let user = checkExists[0];
-    console.log('logged in');
     //return response + cookie for 60 minutes
     res
     .cookie(MY_COOKIE, user.uid, COOKIE_OPTIONS)
@@ -154,7 +156,8 @@ app.get('/list/:listid', (req, res) => {
     return item.id == listid;
   });
   if (list.length > 0) {
-    res.type('json').send(JSON.stringify(list[0]));
+    const isShare = req.cookies[MY_COOKIE] !== list[0].userID;
+    res.type('json').send(JSON.stringify(Object.assign(list[0], { isShareView: isShare })));
   }
   else {
     res.status(404).send('List does not exists');
@@ -219,7 +222,6 @@ app.post('/list/:listid/item/:name', (req, res) => {
   //extend the cookie for another hour
   res.cookie(MY_COOKIE, req.cookies[MY_COOKIE], COOKIE_OPTIONS).send(task);
 });
-
 
 //DELETE: /list/:listid/:itemid - ​delete item on specific list
 app.delete('/list/:listid/:itemid', (req, res) => {
@@ -286,17 +288,25 @@ app.put('/list/:listid/share/:username', (req, res) => {
 
   if (list.length > 0) {
     list = list[0];
+
+    //find our user
     const newUser = _.filter(usersList, (user) => {
       return req.params.username == user.username;
     });
 
     if (newUser.length > 0) {
+
+      //remove the list to modify it
       _.remove(todoLists, (item) => {
         return item && item.id == listId;
       });
 
+      //add the user to shareWith
       list.shareWith = newUser[0];
+
+      //push the list back
       todoLists.push(list);
+
       res.send(JSON.stringify(list));
     }
     else {
@@ -310,35 +320,39 @@ app.put('/list/:listid/share/:username', (req, res) => {
 
 // DELETE: user ​delete user, his lists and logout
 app.delete('/user', (req, res) => {
-  let userId = req.cookies[MY_COOKIE];
-  let user = _.filter(usersList, (user) => {
-    return user.id === userId;
-  })
+
+  const userId = req.cookies[MY_COOKIE];
+
+  const myUser = usersList.filter((user) => {
+    return user.uid == userId;
+  });
 
   // check that user exists
-  if (user.length === 0) {
+  if (myUser.length == 0) {
     res.status(404).send('user does not exists');
   }
   else {
-    let lists = _.filter(todoLists, (lists) => {
-      lists.uid == userId;
-    });
-    lists.foreach(function (list) {
-      deleteList(itemId)
+
+    //remove all lists
+    _.remove(todoLists, (list) => {
+      return list.uid == userId;
     });
 
+    //remove user
     _.remove(usersList, (user) => {
-      return user.id === userId;
+      return user.uid == userId;
     });
+
+    //remove cookie
+    res.cookie(MY_COOKIE, req.cookies[MY_COOKIE], { maxAge: -1, });
     res.send('');
   }
 
-  res.cookie(MY_COOKIE, req.cookies[MY_COOKIE], { maxAge: -1, });
 });
 
 // GET:/logout - ​logout
 app.get('/logout', (req, res) => {
-  res.cookie(MY_COOKIE, req.cookies[MY_COOKIE], { maxAge: -1, });
+  res.cookie(MY_COOKIE, req.cookies[MY_COOKIE], { maxAge: -1, }).send('');
 });
 
 // start app on port 3000

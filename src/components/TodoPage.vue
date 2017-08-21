@@ -22,9 +22,10 @@
       </div>
     </div>
 
-    <task v-on:delete-task="deleteTask" v-for="task in todo.tasks" v-bind:task="task" v-show="!isShareView"></task>
+    <task v-on:delete-task="deleteTask" v-for="task in todo.tasks" :key="task.taskId" v-bind:task="task"
+          v-bind:isShareView="isShareView"></task>
 
-    <create-task v-on:add-task="addTask"></create-task>
+    <create-task v-on:add-task="addTask" v-show="!isShareView"></create-task>
 
     <modal :showModal="showShareDialog" :closeAction="toggleShareDialog">
       <h3 slot="header" style="width: 100%;direction: ltr;">Share Todo List</h3>
@@ -34,6 +35,9 @@
           <input type="email" class="form-control" placeholder="Enter username" v-model="shareWith">
           <small id="emailHelp" class="form-text text-muted">Enter username of the person you like to share with.
           </small>
+        </div>
+        <div class="alert alert-danger" role="alert" v-show="error">
+          Couldn't find user!
         </div>
         <button class="btn btn-primary" v-on:click="shareTodo">Submit</button>
       </div>
@@ -57,7 +61,7 @@
     data() {
       return {
         todo: {},
-        errors: [],
+        error: false,
         searchText: '',
         showShareDialog: false,
         shareWith: '',
@@ -69,8 +73,13 @@
       const that = this;
       this.$store.state.getters.getTodo(this.id)
       .then((data) => {
-        that.todo = data;
-        that.shareWith = data && data.shareWith && data.shareWith.username;
+        if (data && data.id) {
+          that.todo = data;
+          that.shareWith = data && data.shareWith && data.shareWith.username;
+        }
+        else {
+          this.$router.push({ name: 'lists' });
+        }
       });
     },
     watch: {
@@ -82,19 +91,26 @@
       },
       todo() {
         this.checkShare = this.todo && this.todo.shareWith && this.todo.shareWith.username !== undefined;
-        this.shareWith = todo && todo.shareWith && todo.shareWith.username;
+        this.shareWith = this.todo && this.todo.shareWith && this.todo.shareWith.username;
+        this.isShareView = this.todo && this.todo.isShareView;
       },
     },
     methods: {
       toggleShareDialog() {
+        this.error = false;
         this.showShareDialog = !this.showShareDialog;
       },
       shareTodo() {
         const that = this;
         this.$store.state.getters.shareTodo(this.todo, this.shareWith)
         .then((todo) => {
-          that.todo = todo;
-          that.toggleShareDialog();
+          if (todo) {
+            that.todo = todo;
+            that.toggleShareDialog();
+          }
+          else {
+            that.error = true;
+          }
         });
       },
       deleteTodo() {
