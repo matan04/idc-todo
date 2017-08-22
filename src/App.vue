@@ -4,7 +4,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary" v-show="isLoggedIn">
       <label class="navbar-brand">Todo's</label>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-              aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+              aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation" style="max-width: 55px;">
         <span class="navbar-toggler-icon"></span>
       </button>
 

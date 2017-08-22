@@ -48,6 +48,8 @@ app.use(hotMiddleware);
 var staticPath = path.posix.join(config.assetsPublicPath, config.assetsSubDirectory);
 app.use(staticPath, express.static('./static'));
 
+app.use('/assets', express.static('assets'));
+
 
 var _resolve;
 var readyPromise = new Promise(resolve => {

@@ -5,7 +5,6 @@
 
 # Requirements
 > node.js v6+
-> internet connection to load css
 
 # How to run
 > npm install
@@ -19,5 +18,5 @@ Backend run on port 3030.
 
 This is a Todo list project as mention in the design.
 The backend is node + express application that run's on port 3000.
-The frontend build in Vue.js with server side rendering and require internet go fetch third party css & js.
+The frontend build in Vue.js with server side rendering.
 We used Vue.js because it's a promising and experienced framework and have great community
